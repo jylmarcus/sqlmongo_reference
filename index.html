@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQLMongo Reference</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="relative overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-center">Purpose</th>
+              <th scope="col" class="px-6 py-3 text-center">SQL</th>
+              <th scope="col" class="px-6 py-3 text-center">JDBC</th>
+              <th scope="col" class="px-6 py-3 text-center">Mongo</th>
+              <th scope="col" class="px-6 py-3 text-center">MongoTemplate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">get all entries</td>
+              <td class="px-6 py-4">
+                    <code>
+                        <pre>select * from table_name</pre>
+                    </code>
+              </td>
+              <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.queryForList(sql_statement, Object.class)</pre>
+                    </code>
+              </td>
+              <td class="px-6 py-4">
+                    <code>
+                        db.coll.find()
+                    </code>
+              </td>
+              <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query();</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll)</pre>
+                    </code>
+              </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">get columns/fields from table/collection</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select ?, ? from table_name;</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), COLUMN_1, COLUMN_2);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find().project({ field_1: 1, field_2: 1, _id:0});</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query();</pre>
+                        <pre>query.fields().include(field_1).include(field_2).exclude("id");</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">get entries/documents by numerical criteria</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select * from table_name where ? > ?</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column_name, numerical_criterion)</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find({"field": {$COMPARISON_OPERATOR:NUMERICAL_CRITERION}})</pre>
+                        <pre>COMPARISON_OPERATORS: gt, gte, lt, lte, ne, in (requires array), nin (requires array)</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query(Criteria.where(field).gt(numerical_criterion));</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">get entries/documents by string criteria</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select * from table where ? like ?</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column, stringCriterion);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find({"field": {$regex: expression}})</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query(Criteria.where(field).regex(expession));</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">get entries in set</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select * from table where column in setCriterion</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column, setCriterion);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find({field: {$in: [value1, value2, ...]}})</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query(Criteria.where(field).in(value1, value2 OR List of values))</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">Classify into buckets</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select name,</pre>
+                        <pre>   case when (condition)</pre>
+                        <pre>       then result1</pre>
+                        <pre>       else result2</pre>
+                        <pre>   end as column</pre>
+                        <pre>from table</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), condition, result1, result2, column);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.aggregate&lbbrk;[</pre>
+                        <pre>   &lbrace;</pre>
+                        <pre>       $bucket: &lbrace;</pre>
+                        <pre>           groupBy: "$field"</pre>
+                        <pre>           boundaries: [value1, value2, ...valueN]</pre>
+                        <pre>           default: "default boundary name for documents which do not fall into the buckets"</pre>
+                        <pre>           output: &lbrace;</pre>
+                        <pre>               //example of output fields after grouping by bucket</pre>
+                        <pre>               "count": &lbrace; $sum: 1 &rbrace;</pre>
+                        <pre>               "field1":</pre>
+                        <pre>                   &lbrace;</pre>
+                        <pre>                       $push: &lbrace;</pre>
+                        <pre>                           "field2" : "$field2"</pre>
+                        <pre>                           "field3" : "$field3"</pre>
+                        <pre>                       &rbrace;</pre>
+                        <pre>                   &rbrace;</pre>
+                        <pre>               &rbrace;</pre>
+                        <pre>           &rbrace;</pre>
+                        <pre>       &rbrace;,</pre>
+                        <pre>   ...extra stages of aggregation</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>BucketOperation bucketOp = Aggregation.bucket(groupByField).withBoundaries(value1, value2, ... valueN).withDefaultBucket(">valueN")</pre>
+                        <pre>   .andOutputCount().as("count")</pre>
+                        <pre>   .andOutput("field2").push().as("field2")</pre>
+                        <pre>Aggregation pipeline = Aggregation.newAggregation(bucketOp);</pre>
+                        <pre>AggregationResults results = mongoTemplate.aggregate(pipeline, coll, Document.class)</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">Work with dates</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select * from table where date>'YYYY-MM-DD'</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), dateCondition);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find({DateField: {$gt : ISODate(yyyy-MM-ddThh:mm:ss.msZ)}})</pre>
+                        <pre>//Alternative</pre>
+                        <pre>db.coll.find({DateField: {$gt : new Date(yyyy-MM-dd)}})</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>String dateStr = "2017-01-25 09:28:04.041 UTC";</pre>
+                        <pre>Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS ZZZ").parse(dateStr);</pre>
+                        <pre>//Alternative</pre>
+                        <pre>SimpleDateFormat simpleDateFormat = new SimpleDateFormat ("yyyy.MM.dd");</pre>
+                        <pre>Date date = simpleDateFormat.parse(date);</pre>
+                        <pre>Query query = new Query(Criteria.where(field).gt(date));</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">distinct and ordering results</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select distinct(column) from table order by column limit limit</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column, column, limit);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.distinct("field").sort(ascending("field"))</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Aggregation agg = Aggregation.newAggregation(Aggregation.group(field), Aggregation.sort(sort, "_id"))</pre>
+                        <pre>Aggregation pipeline = Aggregation.newAggregation(agg);</pre>
+                        <pre>AggregationResults results = mongoTemplate.aggregate(pipeline, coll, Document.class)</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">union of two queries</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select column1 from table1</pre>
+                        <pre>   union</pre>
+                        <pre>select column2 from table2</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column1, column2);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.aggregate([$project:{fieldName:{$concat:[field1,field2]}}])</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>ProjectionOperation project = Aggregation.project("field1", "field2").andExpression("concat(field1, ' asdf ', field2)").as("concatFieldName")</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">find max of a column/field</td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>select max(column) as columnname from table</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>jdbcTemplate.query(sql_statement, BeanPropertyRowMapper.newInstance(Object.class), column, columnName);</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>db.coll.find().sort({field:-1}).limit(1)</pre>
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+                        <pre>Query query = new Query();</pre>
+                        <pre>query.with(Sort.by(DESC), field).limit(1)</pre>
+                        <pre>List&lt;Document&gt; result = mongoTemplate.find(query, Document.class, coll);</pre>
+                        <pre>//do some processing to obtain only the field of interest</pre>
+                    </code>
+                </td>
+            </tr>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></td>
+                <td class="px-6 py-4">
+                    <code>
+
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+
+                    </code>
+                </td>
+                <td class="px-6 py-4">
+                    <code>
+
+                    </code>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </body>
+</html>
